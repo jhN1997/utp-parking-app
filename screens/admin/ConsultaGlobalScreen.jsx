@@ -21,7 +21,7 @@ export default function ConsultaGlobalScreen({ navigation }) {
         id: 'veh_002',
         placa: 'XYZ789',
         tipo: 'scooter',
-        marca: 'Yamaha',
+        marca: 'Yamaha2',
         modelo: 'Neo',
         color: 'Negro',
         estado: 'pendiente',
