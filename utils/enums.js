@@ -1,1 +1,1 @@
-export const emailDomain = '@utp.edu.pe';
+export const emailDomain = '@utp.edu.pe'; // '@gmail.com'
