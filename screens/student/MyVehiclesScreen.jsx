@@ -1,67 +1,115 @@
+import { useAuth } from 'context/AuthContext';
 import { useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
-import { Appbar } from 'react-native-paper';
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+import { Appbar, Modal, Portal, Provider } from 'react-native-paper';
+import QRCode from 'react-native-qrcode-svg';
+import { getVehiclesByUserId } from 'services/vehicleService';
 
 export default function MyVehiclesScreen({ navigation }) {
   const [vehicles, setVehicles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { auth, logout } = useAuth();
+
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [showQR, setShowQR] = useState(false);
+
+  const handleVehiclePress = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setShowQR(true);
+  };
+
+  const handleClose = () => setShowQR(false);
+
   useEffect(() => {
-    const data = [
-      {
-        id: 'veh_001',
-        placa: 'ABC123',
-        tipo: 'moto',
-        marca: 'Honda',
-        modelo: 'CBR500',
-        color: 'Rojo',
-        numero_serie: 'JH2PC4009EM000001',
-        foto: 'https://zoomempresarial.pe/wp-content/uploads/2024/09/Yamaha-MT-09.jpg',
-      },
-      // Puedes agregar más vehículos aquí
-    ];
-    setVehicles(data);
+    const fetchVehicles = async () => {
+      try {
+        const fetchedVehicles = await getVehiclesByUserId(auth?.uid);
+        setVehicles(fetchedVehicles);
+      } catch (error) {
+        console.error('Error fetching vehicles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVehicles();
   }, []);
 
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Image source={{ uri: item.foto }} style={styles.image} />
-      <View style={styles.info}>
-        <Text style={styles.placa}>{item.placa}</Text>
-        <Text style={styles.text}>
-          {item.tipo.toUpperCase()} - {item.marca} {item.modelo}
-        </Text>
-        <Text style={styles.text}>Color: {item.color}</Text>
-        <Text style={styles.text}>Serie: {item.numero_serie}</Text>
+    <TouchableWithoutFeedback onPress={() => handleVehiclePress(item)}>
+      <View style={styles.card}>
+        <Image source={{ uri: item.photo_url }} style={styles.image} />
+        <View style={styles.info}>
+          <Text style={styles.plate}>{item.status}</Text>
+          <Text style={styles.text}>
+            {item.type.toUpperCase()} - {item.brand} {item.model}
+          </Text>
+          <Text style={styles.text}>Color: {item.color}</Text>
+        </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 
-  return (
-    <View style={styles.containerHeader}>
-      <Appbar.Header style={{ backgroundColor: '#fff', justifyContent: 'flex-start' }}>
-        <Appbar.Action
-          icon="menu"
-          color="#0b1c48" // 👈 aquí le das el color al ícono
-          onPress={() => navigation.openDrawer()}
-        />
-        <View>
-          <Image source={require('../../assets/logo-parking.png')} style={styles.logo} />
+  if (loading) {
+    return <ActivityIndicator style={{ marginTop: 30 }} size="large" color="#000" />;
+  } else {
+    return (
+      <Provider>
+        <View style={styles.containerHeader}>
+          <Appbar.Header style={{ backgroundColor: '#fff', justifyContent: 'flex-start' }}>
+            <Appbar.Action
+              icon="menu"
+              color="#0b1c48" // 👈 aquí le das el color al ícono
+              onPress={() => navigation.openDrawer()}
+            />
+            <View>
+              <Image source={require('../../assets/logo-parking.png')} style={styles.logo} />
+            </View>
+          </Appbar.Header>
+          <View style={styles.container}>
+            <Text style={styles.title}>Mis Vehículos Registrados</Text>
+            {vehicles.length === 0 ? (
+              <Text style={styles.empty}>No tienes vehículos registrados.</Text>
+            ) : (
+              <FlatList
+                data={vehicles}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              />
+            )}
+          </View>
         </View>
-      </Appbar.Header>
-      <View style={styles.container}>
-        <Text style={styles.title}>Mis Vehículos Registrados</Text>
-        {vehicles.length === 0 ? (
-          <Text style={styles.empty}>No tienes vehículos registrados.</Text>
-        ) : (
-          <FlatList
-            data={vehicles}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
-        )}
-      </View>
-    </View>
-  );
+        {/* Modal QR */}
+        <Portal>
+          <Modal visible={showQR} onDismiss={handleClose} contentContainerStyle={styles.modal}>
+            {selectedVehicle && (
+              <>
+                <Text style={{ fontWeight: 'bold', marginBottom: 12, fontSize: 16 }}>
+                  Vehículo: {selectedVehicle.brand} - {selectedVehicle.model}
+                </Text>
+                <QRCode
+                  value={JSON.stringify({
+                    vehicleId: selectedVehicle.id,
+                    userId: auth?.uid, // Simulando un ID de usuario,
+                  })}
+                  size={200}
+                />
+              </>
+            )}
+          </Modal>
+        </Portal>
+      </Provider>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -121,5 +169,12 @@ const styles = StyleSheet.create({
     marginTop: 32,
     fontSize: 16,
     color: '#999',
+  },
+  modal: {
+    backgroundColor: 'white',
+    padding: 20,
+    margin: 20,
+    borderRadius: 12,
+    alignItems: 'center',
   },
 });

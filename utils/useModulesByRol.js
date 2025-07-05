@@ -20,15 +20,15 @@ const studentModules = [
     icon: 'alert-octagon-outline',
     route: 'ReportTheft',
   },
+];
+
+const adminModules = [
   {
     title: 'Escanear QR',
     description: 'Escanea un código QR para registrar o consultar un vehículo.',
     icon: 'qrcode-scan',
     route: 'QrScanner',
   },
-];
-
-const adminModules = [
   {
     title: 'Consulta global',
     description: 'Visualiza todos los vehículos registrados en el sistema.',
@@ -52,12 +52,6 @@ const adminModules = [
     description: 'Genera reportes administrativos o legales por estado.',
     icon: 'file-chart',
     route: 'Reportes',
-  },
-  {
-    title: 'Escanear QR',
-    description: 'Escanea un QR en campo para verificar el registro del vehículo.',
-    icon: 'qrcode-scan',
-    route: 'QrScanner',
   },
 ];
 

@@ -1,24 +1,85 @@
+import { auth } from '@firebaseConfig';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, StyleSheet, Text, View } from 'react-native';
 import { Button, Provider as PaperProvider, TextInput, TouchableRipple } from 'react-native-paper';
+import { logoutAndClear } from 'services/authService';
+import { getUserDataByUID } from 'services/userService';
+import { emailDomain } from 'utils/enums';
 import { useAuth } from '../context/AuthContext';
 
 const LoginScreen = ({ navigation }) => {
-  const [code, setCode] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [code, setCode] = React.useState('U21213982');
+  const [password, setPassword] = React.useState('123456');
   const [showPassword, setShowPassword] = React.useState(false);
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
 
-  const handleLogin = () => {
-    // Simulated login logic
-    const userAthenticated = {
-      uid: 'U12121398a2',
-      nombre: 'John',
-      rol: 'admin', // admin o 'estudiante'
-    };
-    login(userAthenticated);
-    navigation.replace('Main');
+  const handleLogin = async () => {
+    if (!code || !password) {
+      Alert.alert('Error', 'Por favor ingresa tu código UTP y contraseña');
+      return;
+    }
+
+    const email = `${code}${emailDomain}`.toLowerCase().trim(); // Asume que el código se convierte en correo institucional
+
+    try {
+      await logoutAndClear();
+
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await userCredential.user.reload();
+      const user = userCredential.user;
+
+      if (!user.emailVerified) {
+        Alert.alert(
+          'Correo no verificado',
+          'Tu correo electrónico no está verificado. ¿Deseas reenviar el correo de verificación?',
+          [
+            {
+              text: 'Cancelar',
+              style: 'cancel',
+            },
+            {
+              text: 'Reenviar',
+              onPress: async () => {
+                try {
+                  await sendEmailVerification(userCredential.user);
+
+                  Alert.alert('Correo enviado', 'Revisa tu bandeja de entrada.');
+                } catch (err) {
+                  Alert.alert('Error', 'No se pudo enviar el correo de verificación.');
+                }
+              },
+            },
+          ],
+          { cancelable: false },
+        );
+        return; // No continuar al home
+      }
+
+      const userData = await getUserDataByUID(user.uid);
+      if (!userData) {
+        Alert.alert('Error', 'No se encontraron datos del usuario en Firestore.');
+        return;
+      }
+
+      const authenticatedUser = {
+        uid: user.uid,
+        ...userData,
+      };
+      console.log('Datos del authenticatedUser:', authenticatedUser);
+      login(authenticatedUser);
+      navigation.replace('Main');
+    } catch (error) {
+      Alert.alert('Error de autenticación', error.message);
+    }
   };
+
+  const validateEmailVerified = () => {};
+
+  const redirectToRegisterScreen = () => {
+    navigation.navigate('Register');
+  };
+
   return (
     <PaperProvider>
       <View style={styles.container}>
@@ -28,7 +89,7 @@ const LoginScreen = ({ navigation }) => {
           Ingresa tus datos para <Text style={{ fontWeight: 'bold' }}>iniciar sesión</Text>.
         </Text>
 
-        <Text style={styles.label}>Usuario: código de alumno UTP</Text>
+        <Text style={styles.label}>Usuario: Código de Alumno UTP</Text>
         <TextInput
           mode="outlined"
           placeholder="Ingresa tu código UTP"
@@ -56,8 +117,8 @@ const LoginScreen = ({ navigation }) => {
           style={styles.input}
         />
 
-        <TouchableRipple onPress={() => console.log('Restablecer contraseña')}>
-          <Text style={styles.link}>Restablecer contraseña</Text>
+        <TouchableRipple onPress={redirectToRegisterScreen}>
+          <Text style={styles.link}>Crear una nueva cuenta</Text>
         </TouchableRipple>
 
         <Button mode="contained" onPress={handleLogin} style={styles.button}>
@@ -116,7 +177,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   button: {
-    backgroundColor: '#cbd3e0',
+    backgroundColor: '#0b1c48',
     paddingVertical: 6,
   },
 });

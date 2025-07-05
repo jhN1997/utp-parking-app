@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
 import { Platform, View } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
+import RegisterScreen from 'screens/RegisterScreen';
 import { AuthProvider } from './context/AuthContext';
 import MainDrawer from './navigators/MainDrawer'; // Drawer modularizado
 import LoginScreen from './screens/LoginScreen';
@@ -28,6 +29,7 @@ export default function App() {
             <Stack.Navigator screenOptions={{ headerShown: false }}>
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Main" component={MainDrawer} />
+              <Stack.Screen name="Register" component={RegisterScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </PaperProvider>
