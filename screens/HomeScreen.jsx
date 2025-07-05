@@ -81,7 +81,7 @@ export default function HomeScreen({ navigation }) {
             Hola, {auth?.name} {auth?.lastNames}
           </Text>
           <>
-            {vehicleIn && (
+            {vehicleIn && auth?.role === 'student' && (
               <TouchableOpacity style={styles.vehicleIn} onPress={() => handleVehiclePress()}>
                 <Text style={styles.titleCard}>Vehiculo estacionado:</Text>
                 <View style={styles.cardContent}>

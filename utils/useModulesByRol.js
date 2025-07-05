@@ -30,23 +30,19 @@ const adminModules = [
     route: 'QrScanner',
   },
   {
-    title: 'Consulta global',
-    description: 'Visualiza todos los vehículos registrados en el sistema.',
-    icon: 'clipboard-list',
-    route: 'ConsultaGlobal',
+    title: 'Búsqueda de vehículos',
+    description: 'Busca vehículos por placa o número de serie.',
+    icon: 'card-search',
+    route: 'BusquedaVehiculo',
   },
+  /*
   {
     title: 'Validación de vehículos',
     description: 'Aprueba o rechaza registros pendientes de validación.',
     icon: 'check-decagram',
     route: 'Validacion',
   },
-  {
-    title: 'Búsqueda de vehículos',
-    description: 'Busca vehículos por placa o número de serie.',
-    icon: 'card-search',
-    route: 'BusquedaVehiculo',
-  },
+*/
   {
     title: 'Reportes',
     description: 'Genera reportes administrativos o legales por estado.',
