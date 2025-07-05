@@ -3,16 +3,16 @@
 // Arrays de módulos para cada rol
 const studentModules = [
   {
+    title: 'Mis vehículos',
+    description: 'Consulta tus vehículos y clickea en ellos para generar un QR de estacionamiento',
+    icon: 'garage',
+    route: 'MyVehicles',
+  },
+  {
     title: 'Registrar vehículo',
     description: 'Agrega un nuevo vehículo menor a tu perfil.',
     icon: 'motorbike',
     route: 'RegisterVehicle',
-  },
-  {
-    title: 'Mis vehículos',
-    description: 'Consulta y gestiona tus vehículos registrados.',
-    icon: 'garage',
-    route: 'MyVehicles',
   },
   {
     title: 'Reportar robo',
@@ -25,7 +25,7 @@ const studentModules = [
 const adminModules = [
   {
     title: 'Escanear QR',
-    description: 'Escanea un código QR para registrar o consultar un vehículo.',
+    description: 'Escanea un código QR para registrar la entrada o salida de un vehículo.',
     icon: 'qrcode-scan',
     route: 'QrScanner',
   },

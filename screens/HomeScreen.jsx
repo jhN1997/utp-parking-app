@@ -21,41 +21,49 @@ export default function HomeScreen({ navigation }) {
     const cargarDatos = async () => {
       try {
         const parkingData = await getParkingHistoryByUser(auth?.uid);
-        const vehicleData = await getVehicleById(parkingData.vehicleId);
+        console.log('parkingData', parkingData);
+        if (parkingData) {
+          const vehicleData = await getVehicleById(parkingData.vehicleId);
 
-        const fecha = parkingData.entryTime.toDate();
+          const fecha = parkingData.entryTime.toDate();
 
-        // Fecha: 4 de julio de 2025
-        const fechaFormateada = new Intl.DateTimeFormat('es-PE', {
-          timeZone: 'America/Lima',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        }).format(fecha);
+          // Fecha: 4 de julio de 2025
+          const fechaFormateada = new Intl.DateTimeFormat('es-PE', {
+            timeZone: 'America/Lima',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(fecha);
 
-        // Hora: 9:23 p. m.
-        const horaFormateada = new Intl.DateTimeFormat('es-PE', {
-          timeZone: 'America/Lima',
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-        }).format(fecha);
+          // Hora: 9:23 p. m.
+          const horaFormateada = new Intl.DateTimeFormat('es-PE', {
+            timeZone: 'America/Lima',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+          }).format(fecha);
 
-        const datosFinales = {
-          ...parkingData,
-          vehicle: vehicleData,
-          date: fechaFormateada, // Extrae solo la fecha
-          time: horaFormateada, // Extrae solo la hora
-        };
+          const datosFinales = {
+            ...parkingData,
+            vehicle: vehicleData,
+            date: fechaFormateada, // Extrae solo la fecha
+            time: horaFormateada, // Extrae solo la hora
+          };
 
-        console.log('Paso 3 - Datos Finales:', datosFinales);
-        setVehicleIn(datosFinales);
+          console.log('Paso 3 - Datos Finales:', datosFinales);
+          setVehicleIn(datosFinales);
+        }
       } catch (error) {
         console.error('Error en la carga secuencial:', error);
       }
     };
-
-    cargarDatos();
+    if (!auth) {
+      navigation.navigate('Login');
+      return;
+    }
+    if (auth.role == 'student') {
+      cargarDatos();
+    }
   }, []);
 
   const handleVehiclePress = () => {
@@ -100,6 +108,14 @@ export default function HomeScreen({ navigation }) {
                     )}
                   </View>
                 </View>
+                <Divider style={{ marginVertical: 16 }} />
+
+                <Text>Presiona para obtener un código QR.</Text>
+                <Text style={styles.description}>
+                  El personal de seguridad lo escaneará y registrará tu{' '}
+                  <Text style={{ fontWeight: 'bold' }}>salida</Text> del estacionamiento con este
+                  vehículo.
+                </Text>
               </TouchableOpacity>
             )}
           </>
@@ -130,7 +146,28 @@ export default function HomeScreen({ navigation }) {
               <Text style={{ fontWeight: 'bold', marginBottom: 12, fontSize: 16 }}>
                 Vehículo: {vehicleIn.vehicle.brand} - {vehicleIn.vehicle.model}
               </Text>
-              <QRCode value={vehicleIn.id} size={200} />
+              <Text style={{ fontSize: 14, textAlign: 'left' }}>
+                Muestra este código QR al personal de seguridad para registrar tu{' '}
+                <Text style={{ fontWeight: 'bold' }}>salida</Text> del estacionamiento con este
+                vehículo.
+              </Text>
+
+              <View
+                style={{
+                  height: 1,
+                  backgroundColor: '#ccc', // o '#999', '#000', según diseño
+                  marginVertical: 16,
+                  width: '100%',
+                }}
+              />
+
+              <QRCode
+                value={JSON.stringify({
+                  id: vehicleIn.id,
+                  type: 'OUT',
+                })}
+                size={200}
+              />
             </>
           )}
         </Modal>

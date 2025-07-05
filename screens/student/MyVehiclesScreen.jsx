@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { Appbar, Modal, Portal, Provider } from 'react-native-paper';
+import { Appbar, Divider, Modal, Portal, Provider } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 import { getVehiclesByUserId } from 'services/vehicleService';
 
@@ -76,6 +76,15 @@ export default function MyVehiclesScreen({ navigation }) {
           </Appbar.Header>
           <View style={styles.container}>
             <Text style={styles.title}>Mis Vehículos Registrados</Text>
+
+            <Text style={{ fontSize: 16 }}>
+              Selecciona tu vehículo y presenta su código QR para registrar tu{' '}
+              <Text style={{ fontWeight: 'bold' }}>entrada</Text> al campus con el personal de
+              seguridad.
+            </Text>
+
+            <Divider style={{ marginVertical: 16 }} />
+
             {vehicles.length === 0 ? (
               <Text style={styles.empty}>No tienes vehículos registrados.</Text>
             ) : (
@@ -96,6 +105,22 @@ export default function MyVehiclesScreen({ navigation }) {
                 <Text style={{ fontWeight: 'bold', marginBottom: 12, fontSize: 16 }}>
                   Vehículo: {selectedVehicle.brand} - {selectedVehicle.model}
                 </Text>
+
+                <Text style={{ fontSize: 14, textAlign: 'left' }}>
+                  Muestra este código QR al personal de seguridad para registrar tu{' '}
+                  <Text style={{ fontWeight: 'bold' }}>entrada</Text> al estacionamiento con este
+                  vehículo.
+                </Text>
+
+                <View
+                  style={{
+                    height: 1,
+                    backgroundColor: '#ccc', // o '#999', '#000', según diseño
+                    marginVertical: 16,
+                    width: '100%',
+                  }}
+                />
+
                 <QRCode
                   value={JSON.stringify({
                     vehicleId: selectedVehicle.id,

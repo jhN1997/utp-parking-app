@@ -7,7 +7,10 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "login": "eas login",
+    "configure": "eas build:configure",
+    "build-apk": "eas build --platform android --profile preview"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.24.0",

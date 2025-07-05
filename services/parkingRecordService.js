@@ -1,4 +1,13 @@
-import { addDoc, collection, getDocs, limit, query, where } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  limit,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { db } from '../firebaseConfig'; // Adjust the import path as necessary
 
 export const createParkingRecord = async (recordData) => {
@@ -11,8 +20,13 @@ export async function getParkingHistoryByUser(userId) {
     collection(db, 'parking_records'),
     where('userId', '==', userId),
     where('status', '==', 'IN'),
-    limit(1), // Limita a los últimos 10 registros
+    limit(1),
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })).pop();
+}
+
+export async function updateParkingRecord(parkingId, dataToUpdate) {
+  const parkingRef = doc(db, 'parking_records', parkingId);
+  await updateDoc(parkingRef, dataToUpdate);
 }

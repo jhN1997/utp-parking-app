@@ -17,7 +17,6 @@ export async function getVehicleById(vehiculoId) {
   const vehiculoSnap = await getDoc(vehiculoRef);
 
   if (vehiculoSnap.exists()) {
-    console.log('existe!!');
     return vehiculoSnap.data();
   } else {
     return null; // o lanza un error si prefieres

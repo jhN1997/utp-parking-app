@@ -4,7 +4,7 @@ import { Timestamp } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { Provider } from 'react-native-paper';
-import { createParkingRecord } from 'services/parkingRecordService';
+import { createParkingRecord, updateParkingRecord } from 'services/parkingRecordService';
 
 // eslint-disable-next-line no-unused-vars
 export default function QrScannerScreen({ navigation }) {
@@ -24,21 +24,34 @@ export default function QrScannerScreen({ navigation }) {
   // eslint-disable-next-line no-unused-vars
   const handleBarcodeScanned = ({ type, data }) => {
     setScanned(true);
-    const { userId, vehicleId } = JSON.parse(data);
+    console.log(`Bar code with type ${type} and data ${data} has been scanned!`);
+    const { userId, vehicleId, id } = JSON.parse(data);
 
-    const parkingRecordDatafromQR = {
-      entryTime: Timestamp.now(),
-      entryScanBy: auth?.uid,
-      status: 'IN',
-      userId,
-      vehicleId,
-      exitTime: null,
-      notes: null,
-      exitScanBy: null,
-      zone: null,
-    };
+    if (!id) {
+      // Escaneo de entrada
+      const parkingRecordDatafromQR = {
+        entryTime: Timestamp.now(),
+        entryScanBy: auth?.uid,
+        status: 'IN',
+        userId,
+        vehicleId,
+        exitTime: null,
+        notes: null,
+        exitScanBy: null,
+        zone: null,
+      };
 
-    handleCreateRecord(parkingRecordDatafromQR);
+      handleCreateRecord(parkingRecordDatafromQR);
+    } else {
+      // Escaneo de salida
+      const parkingRecordDatafromQR = {
+        exitTime: Timestamp.now(),
+        exitScanBy: auth?.uid,
+        status: 'OUT',
+      };
+
+      handleupdateParkingRecord(id, parkingRecordDatafromQR);
+    }
   };
 
   const handleCreateRecord = async (data) => {
@@ -48,6 +61,16 @@ export default function QrScannerScreen({ navigation }) {
       console.log('Nuevo registro creado:', record);
     } catch (error) {
       console.error('Error al crear parking record:', error);
+    }
+  };
+
+  const handleupdateParkingRecord = async (id, parkingRecordDatafromQR) => {
+    try {
+      await updateParkingRecord(id, parkingRecordDatafromQR);
+
+      console.log('Documento actualizado correctamente');
+    } catch (error) {
+      console.log('Error al actualizar el documento:', error);
     }
   };
 
